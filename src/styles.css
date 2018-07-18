@@ -1,0 +1,32 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+body {
+	background: #eee;
+	width: 960px;
+	margin: 20px auto;
+}
+
+.mat-card {
+	margin-bottom: 20px;
+}
+.mat-card-title {
+	margin-bottom: 10px !important;
+}
+.mat-card-title h2 {
+	margin: 0px !important;
+}
+.mat-card-title a {
+	text-decoration: none;
+}
+.mat-card-title a:hover {
+	text-decoration: underline;
+}
+.mat-card-subtitle {
+	display: inline-block;
+}
+.mat-card-subtitle i {
+	font-size: 10px;
+}
+.mat-card-avatar.story {
+	width: 60px;
+}

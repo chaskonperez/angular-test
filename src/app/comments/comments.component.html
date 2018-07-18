@@ -1,0 +1,15 @@
+<mat-card *ngFor="let comment of comments">
+	<mat-card-header>
+		<div mat-card-avatar><img src="http://i.pravatar.cc/40?img={{ comment.by }}" width="40"></div>
+		<mat-card-title><strong>{{ comment.by }}</strong></mat-card-title>
+		<mat-card-subtitle>
+			<small>
+				<i class="material-icons">query_builder</i>
+				{{ comment.time * 1000 | date: 'MMM dd, yyyy' }}
+			</small>
+		</mat-card-subtitle>
+	</mat-card-header>
+	<mat-card-content>
+		<p [innerHTML]="comment.text"></p>
+  </mat-card-content>
+</mat-card>

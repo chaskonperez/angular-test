@@ -1,0 +1,22 @@
+<mat-card *ngFor="let story of stories">
+	<mat-card-header>
+		<div mat-card-avatar><img src="https://loremflickr.com/320/240?random={{ story.id }}" width="40"></div>
+		<mat-card-title><a routerLink="/story/{{ story.id }}">{{ story.title }}</a></mat-card-title>
+		<mat-card-subtitle>
+			<small>
+				{{ story.type }}
+				<i class="material-icons">query_builder</i>
+				{{ story.time * 1000 | date: 'MMM dd, yyyy' }}
+				<i class="material-icons">face</i>
+				{{ story.by }}
+			</small>
+		</mat-card-subtitle>
+	</mat-card-header>
+	<mat-card-content *ngIf="story.type == 'story'">
+	    <small>
+	    	<a href="javascript:;" (click)="openDialog(story)">Comments ({{ story.kids?.length }})</a>
+	    </small>
+  </mat-card-content>
+</mat-card>
+
+<mat-paginator [length]="paginator.total" [pageSize]="paginator.pageSize" (page)="pageEvent($event)"></mat-paginator>
