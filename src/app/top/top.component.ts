@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material';
+import { AngularIndexedDB } from 'angular2-indexeddb';
 import { CommentsComponent } from '../comments/comments.component';
+import { DbService } from '../db.service';
 
 @Component({
   	selector: 'app-top',
@@ -20,11 +22,14 @@ export class TopComponent implements OnInit {
 
   	constructor(
   		private http: HttpClient,
-  		public dialog: MatDialog
-  	) { }
+  		public dialog: MatDialog,
+  		private db: DbService
+  	) { 
+  		
+  	}
 
   	ngOnInit() {
-  		this.getStories(undefined);
+  		this.getStories('');
   	}
 
   	pageEvent (event) {
@@ -32,28 +37,43 @@ export class TopComponent implements OnInit {
   	}
 
   	getStories(page) {
-  		this.stories = [];
+  		this.db.openDb().then(() => {
+		    this.db.getAll().then((items) => {
+	  			if (Number.isInteger(page)) {
+		  			if (page > this.paginator.page) {
+				    	this.paginator.firstItem = this.paginator.lastItem;
+				    	this.paginator.lastItem += 50;
+				    } else {
+				    	this.paginator.lastItem = this.paginator.firstItem;
+				    	this.paginator.firstItem -= 50;
+				    }
 
-  		this.http.get('https://hacker-news.firebaseio.com/v0/beststories.json').subscribe(data => {
-  			this.paginator.total = data.length;
+				    this.paginator.page = page;
+				}
 
-  			if (Number.isInteger(page)) {
-	  			if (page > this.paginator.page) {
-			    	this.paginator.firstItem = this.paginator.lastItem;
-			    	this.paginator.lastItem += 50;
+		    	if (!items.length) {
+			    	this.http.get('https://hacker-news.firebaseio.com/v0/beststories.json').subscribe(data => {
+					    this.paginator.total = Object.keys(data).length;
+
+					    for(var key in data) {
+					    	this.http.get(`https://hacker-news.firebaseio.com/v0/item/${data[key]}.json`).subscribe(data2 => {
+							    this.db.add(data2).then(() => {
+							    	if (this.paginator.pageSize >= this.stories.length) {
+							    		this.stories.push(data2);
+							    	}
+								}, (error) => {
+								    console.log(error);
+								});
+							});
+					    }
+					});
 			    } else {
-			    	this.paginator.lastItem = this.paginator.firstItem;
-			    	this.paginator.firstItem -= 50;
+			    	this.paginator.total = items.length;
+			    	this.stories = items.slice(this.paginator.firstItem, this.paginator.lastItem);
 			    }
-
-			    this.paginator.page = page;
-			}
-
-		    data.slice(this.paginator.firstItem, this.paginator.lastItem).forEach((val, idx) => {
-		    	this.http.get(`https://hacker-news.firebaseio.com/v0/item/${val}.json`).subscribe(data => {
-				    this.stories.push(data);
-				});
-		    });
+			}, (error) => {
+			    console.log(error);
+			});
 		});
   	}
 
